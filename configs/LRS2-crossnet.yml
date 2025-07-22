@@ -1,0 +1,93 @@
+# Network config
+audionet:
+  audionet_name: crossnet
+  audionet_config:
+        num_layers: 12
+        dim_squeeze: 16
+        dim_hidden: 192
+        dim_ffn: 384
+        num_heads: 4
+        num_freqs: 129
+        dropout: [0, 0, 0]
+        kernel_size: [5, 3]
+        conv_groups: [8, 8]
+        norms: ["LN", "LN", "GN", "LN", "LN", "LN"]
+        padding: 'zeros'
+        full_share: 0 
+        gmhsa: True
+        win: 256
+        hop_length: 128
+        inp_channels: 2
+        out_channels: 2
+        dim: 64
+        bias: False
+        vpre_channels: 512
+        num_source: 1
+
+videonet:
+  videonet_name: ResNetVideoModel
+  videonet_config:
+    pretrain: /home/xueke/DPT_1d_main/lrw_resnet18_mstcn.pth.tar
+
+# Loss config
+loss:
+  train:
+    loss_func: PITLossWrapper
+    sdr_type: pairwise_neg_sisdr
+    config:
+      pit_from: pw_mtx
+      threshold_byloss: false
+  val:
+    loss_func: PITLossWrapper
+    sdr_type: pairwise_neg_sisdr
+    config:
+      pit_from: pw_mtx
+      threshold_byloss: false
+
+# Training config
+training:
+  system: AudioVisualLightningModule
+  gpus: [0,1,2,3]
+  parallel: ddp
+  epochs: 500
+  early_stop:
+    monitor: val_loss/dataloader_idx_0
+    mode: min
+    patience: 20
+    verbose: true
+  
+# Optim config
+optimizer:
+  optim_name: adamW
+  lr: 0.001
+  weight_decay: 0.0001
+  betas: [0.9, 0.999]
+  
+# Sche config
+scheduler: 
+  sche_name: ReduceLROnPlateau
+  sche_config:
+    patience: 3
+    factor: 0.9
+# scheduler: 
+#   sche_name: CosineAnnealingLR
+#   sche_config:
+#     T_max: 150  # 这是总的迭代周期数，设置成你想训练的总epoch数
+# Data config
+datamodule:
+  data_name: AVSpeechDyanmicDataModule
+  data_config:
+    train_dir: /home/xueke/DPT_1d_main/DataPreProcess/tr/
+    valid_dir: /home/xueke/DPT_1d_main/DataPreProcess/cv/
+    test_dir: /home/xueke/DPT_1d_main/DataPreProcess/tt/
+    n_src: 1
+    sample_rate: 16000
+    segment: 2.0
+    normalize_audio: false
+    batch_size: 4
+    num_workers: 24
+    pin_memory: true
+    persistent_workers: false
+  
+exp:
+  exp_name: crossnet

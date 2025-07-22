@@ -1,0 +1,91 @@
+# Network config
+audionet:
+  audionet_name: tfgridnet_v2_a_o
+  audionet_config:
+        num_layers: 6 
+        win: 256
+        hop_length: 128
+        n_fft: 256
+        inp_channels: 2
+        out_channels: 2 
+        dim: 48
+        bias: False
+        vpre_channels: 768
+        num_source: 2
+        lstm_hidden_units: 128
+        attn_n_head: 4
+        attn_approx_qk_dim: 512
+        emb_dim: 48
+        emb_ks: 4
+        emb_hs: 1
+        activation: "prelu"
+        eps: 1.0e-5
+
+videonet:
+  videonet_name: ResNetVideoModel
+  videonet_config:
+    pretrain: /root/MAVINet/lrw_resnet18_mstcn.pth.tar
+
+# Loss config
+loss:
+  train:
+    loss_func: PITLossWrapper
+    sdr_type: pairwise_neg_sisdr
+    config:
+      pit_from: pw_mtx
+      threshold_byloss: false
+  val:
+    loss_func: PITLossWrapper
+    sdr_type: pairwise_neg_sisdr
+    config:
+      pit_from: pw_mtx
+      threshold_byloss: false
+
+# Training config
+training:
+  system: AudioVisualLightningModule
+  gpus: [0,1,2,3,4,5,6,7]
+  parallel: ddp
+  epochs: 500
+  early_stop:
+    monitor: val_loss/dataloader_idx_0
+    mode: min
+    patience: 20
+    verbose: true
+  
+# Optim config
+optimizer:
+  optim_name: adamW
+  lr: 0.001
+  weight_decay: 0.0001
+  betas: [0.9, 0.999]
+  
+# Sche config
+scheduler: 
+  sche_name: ReduceLROnPlateau
+  sche_config:
+    patience: 3   # 5
+    factor: 0.5
+# scheduler: 
+#   sche_name: CosineAnnealingLR
+#   sche_config:
+#     T_max: 150  # 这是总的迭代周期数，设置成你想训练的总epoch数
+# Data config
+datamodule:
+  data_name: AVSpeechDyanmicDataModule
+  data_config:
+    train_dir: /mnt/nvme/dataset_xue/voxceleb2/mix_audio_2speakers/wav16k/min/tr/
+    valid_dir: /mnt/nvme/dataset_xue/voxceleb2/mix_audio_2speakers/wav16k/min/cv/
+    test_dir: /mnt/nvme/dataset_xue/voxceleb2/mix_audio_2speakers/wav16k/min/tt/
+    # spk_list: /root/dataset/LRS2/frame_112/train_id.spk
+    n_src: 2
+    sample_rate: 16000
+    segment: 2.0
+    normalize_audio: false
+    batch_size: 2
+    num_workers: 24
+    pin_memory: true
+    persistent_workers: false
+  
+exp:
+  exp_name: LRS2-restormer
