@@ -28,8 +28,6 @@ from look2hear.utils import print_only, MyRichProgressBar, RichProgressBarTheme
 
 import warnings
 
-
-########## L1loss大概是0.047，还是比较大
 warnings.filterwarnings("ignore")
 torch.set_float32_matmul_precision('high')
 
@@ -158,7 +156,7 @@ def main(config):
 
     video_model = getattr(look2hear.videomodels, config["videonet"]["videonet_name"])(
         **config["videonet"]["videonet_config"],
-    )  # 前面是获取指定的模型类，后面是实例化模型类
+    ) 
     # import pdb; pdb.set_trace()
     print_only("Instantiating Optimizer <{}>".format(config["optimizer"]["optim_name"]))
     optimizer = make_optimizer(model.parameters(), **config["optimizer"])
@@ -183,7 +181,7 @@ def main(config):
     #     scheduler = {
     #     "scheduler": [cosine_scheduler, plateau_scheduler],
     #     "interval": "epoch",
-    #     "monitor": "val_loss",  # 用于 ReduceLROnPlateau
+    #     "monitor": "val_loss",
     #     "frequency": 1,
     #     }
     #     # print("eta_min =", config["scheduler"]["sche_config"]["T_max"])
@@ -253,8 +251,6 @@ def main(config):
         print_only("Instantiating EarlyStopping")
         callbacks.append(EarlyStopping(**config["training"]["early_stop"]))
     # callbacks.append(MyRichProgressBar(theme=RichProgressBarTheme()))
-    # MyRichProgressBar 是一个自定义的进度条类，添加一些自定义的行为或样式，自定义进度条的颜色、字体等。
-    # 继承自 pytorch_lightning.callbacks.RichProgressBar，并且可以自定义进度条的主题样式
 
     # Don't ask GPU if they are not available.
     gpus = config["training"]["gpus"] if torch.cuda.is_available() else None
@@ -272,8 +268,7 @@ def main(config):
     # )
 
     trainer = pl.Trainer(
-        precision=32,  # bf16 保留了 float32 的数值范围（因为它有相同的 8 位指数），所以更适合深度学习中需要大动态范围的操作。
-        # fp16 精度更高，但数值范围小，可能出现溢出或精度损失问题。	由于动态范围大，bf16 更不容易因梯度爆炸等问题导致 NaN。
+        precision=32, 
         max_epochs=config["training"]["epochs"],
         callbacks=callbacks,
         default_root_dir=exp_dir,
