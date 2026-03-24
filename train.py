@@ -147,13 +147,6 @@ def main(config):
         **config["audionet"]["audionet_config"],
     )
 
-    # # 动态获取类并实例化
-    # model_class = getattr(look2hear.models, config["audionet"]["audionet_name"])实例化这个类
-    # model = model_class(
-    # sample_rate=config["datamodule"]["data_config"]["sample_rate"],
-    # **config["audionet"]["audionet_config"]
-    # )传入参数
-
     video_model = getattr(look2hear.videomodels, config["videonet"]["videonet_name"])(
         **config["videonet"]["videonet_config"],
     ) 
@@ -194,7 +187,7 @@ def main(config):
 
     # Just after instantiating, save the args. Easy loading in the future.
     config["main_args"]["exp_dir"] = os.path.join(
-        os.getcwd(), "/home/xueke/DPT_1d_main", "checkpoint_improve_tfgridnet_LRS2_SS_face_only", config["exp"]["exp_name"]
+        os.getcwd(), "/DPT_1d_main", "checkpoint_improve_tfgridnet_LRS2_SS_face_only", config["exp"]["exp_name"]
     )
     exp_dir = config["main_args"]["exp_dir"]
     os.makedirs(exp_dir, exist_ok=True)
@@ -285,7 +278,7 @@ def main(config):
         # fast_dev_run=True,
     )
     trainer.fit(system)
-    # trainer.fit(system, ckpt_path='/home/xueke/DPT_1d_main/checkpoint_improve_tfgridnet_LRS2_SS_step2/LRS2-restormer/epoch=28-16.65.ckpt')
+    # trainer.fit(system, ckpt_path='')
     print_only("Finished Training")
     best_k = {k: v.item() for k, v in checkpoint.best_k_models.items()}
     with open(os.path.join(exp_dir, "best_k_models.json"), "w") as f:
@@ -309,7 +302,7 @@ if __name__ == "__main__":
     )
     parser = argparse.ArgumentParser()
     parser.add_argument("--conf_dir",
-                        default="/home/xueke/DPT_1d_main/configs/LRS2-tfgridnet.yaml",
+                        default="/DPT_1d_main/configs/LRS2-tfgridnet.yaml",
                         help="Full path to save best validation model",
                         )
     args = parser.parse_args()
