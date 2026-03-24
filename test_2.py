@@ -37,7 +37,7 @@ from look2hear.models.tfgridnet_v2_step2 import tfgridnet_v2_step2
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--conf_dir",
-                    default="/home/xueke/DPT_1d_main/configs/LRS2-tfgridnet.yaml",
+                    default="/DPT_1d_main/configs/LRS2-tfgridnet.yaml",
                     help="Full path to save best validation model")
 
 def remove_prefix_from_keys(state_dict, prefixes):
@@ -46,7 +46,7 @@ def remove_prefix_from_keys(state_dict, prefixes):
         for prefix in prefixes:
             if key.startswith(prefix):
                 key = key[len(prefix):]
-                break  # 只去除一个前缀
+                break  
         new_state_dict[key] = value
     return new_state_dict
 
@@ -87,7 +87,7 @@ def main(config):
 
     # for key, value in conf["state_dict"].items():  # Remove 'model.' prefix from key
         # print(key)
-        # new_key = key.replace('model.', '', 1)  # , 1  ## # # # ckpt会多上模型的名称，需要去掉
+        # new_key = key.replace('model.', '', 1) 
         # new_state_dict[new_key] = value
         # print("new_state_dict", new_state_dict.keys())
         # self.model.load_state_dict(new_state_dict, strict=False)
@@ -112,12 +112,12 @@ def main(config):
     _, _ , test_set = datamodule.make_sets
    
     # Randomly choose the indexes of sentences to save.
-    ex_save_dir = os.path.join("/home/xueke/DPT_1d_main", "results/")
+    ex_save_dir = os.path.join("/DPT_1d_main", "results/")
     os.makedirs(ex_save_dir, exist_ok=True)
     metrics = MetricsTracker(
         save_file=os.path.join(ex_save_dir, "metrics_LRS2_2mix_lip_only.csv"))
     video_model.eval()
-    model.eval()  # 这个必须要加######
+    model.eval() 
     torch.no_grad().__enter__()
     with progress:
         for idx in progress.track(range(len(test_set))):
