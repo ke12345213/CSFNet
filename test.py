@@ -41,7 +41,7 @@ def remove_prefix_from_keys(state_dict, prefixes):
         for prefix in prefixes:
             if key.startswith(prefix):
                 key = key[len(prefix):]
-                break  # 只去除一个前缀
+                break 
         new_state_dict[key] = value
     return new_state_dict
 
@@ -82,7 +82,7 @@ def main(config):
 
     # for key, value in conf["state_dict"].items():  # Remove 'model.' prefix from key
         # print(key)
-        # new_key = key.replace('model.', '', 1)  # , 1  ## # # # ckpt会多上模型的名称，需要去掉
+        # new_key = key.replace('model.', '', 1) 
         # new_state_dict[new_key] = value
         # print("new_state_dict", new_state_dict.keys())
         # self.model.load_state_dict(new_state_dict, strict=False)
